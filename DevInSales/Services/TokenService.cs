@@ -15,6 +15,7 @@ namespace DevInSales.Services
             var claims = new Claim[]
              {
                     new Claim(ClaimTypes.Name, user.Name.ToString()),
+                    new Claim(ClaimTypes.Role, user.Permissao.ToString())
         };
 
             return GenerateToken(claims);

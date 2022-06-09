@@ -1,3 +1,5 @@
+using DevInSales.Enums;
+using Microsoft.OpenApi.Extensions;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DevInSales.Models;
@@ -17,6 +19,9 @@ public class User
     public Profile Profile { get; set; }
     public int ProfileId { get; set; }
     public string Role { get; set; }
+
+    public Permissoes Permissao { get; set; }
+    public string DescricaoPermissao => Permissao.GetDisplayName();
 
     public User()
     {
