@@ -24,6 +24,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0-preview-19075-0444" />
