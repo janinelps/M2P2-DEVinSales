@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using DevInSales.Context;
 using DevInSales.Models;
 using DevInSales.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DevInSales.Controllers
 {
@@ -23,7 +24,6 @@ namespace DevInSales.Controllers
             _context = context;
         }
 
-        // GET: api/State
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -38,7 +38,7 @@ namespace DevInSales.Controllers
             retorno.Add(temp);
             return Ok(retorno);
         }
-        //GET /state/{state_id}/
+
         [HttpGet("/state/{state_id}")]
         public async Task<ActionResult<IEnumerable<State>>> GetStateId(int state_id)
         {
@@ -58,7 +58,6 @@ namespace DevInSales.Controllers
             }
         }
 
-        // GET: api/State/5
         [HttpGet("{id}")]
         public async Task<ActionResult<State>> GetState(int id)
         {
@@ -148,10 +147,8 @@ namespace DevInSales.Controllers
             return Ok(statecity_include);
         }
 
-
-        // PUT: api/State/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<IActionResult> PutState(int id, State state)
         {
             if (id != state.Id)
@@ -180,9 +177,8 @@ namespace DevInSales.Controllers
             return NoContent();
         }
 
-        // POST: api/State
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{state_id}/city")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -191,19 +187,16 @@ namespace DevInSales.Controllers
             var state_findId = await _context.State.FindAsync(state_id);
             var state_findName = await _context.City.FirstOrDefaultAsync(x => x.Name == city.Name && x.State_Id == state_id);
 
-            //Caso não exista nenhum registro de Estado
             if (state_findId == null)
             {
                 return NotFound();
             }
 
-            //Caso exista alguma outra cidade criada nesse estado com o mesmo nome enviado
             if (state_findName != null)
             {
                 return BadRequest();
             }
 
-            //Criado com sucesso!
             if (city.Name != "")
             {
                 city.State_Id = state_id;
@@ -220,6 +213,7 @@ namespace DevInSales.Controllers
         }
 
         [HttpPost("{state_id}/city/{city_id}/address")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -230,20 +224,16 @@ namespace DevInSales.Controllers
 
             var city_findCityState = await _context.City.FirstOrDefaultAsync(x => x.State_Id == state_id && x.Id == city_id);
 
-            //Caso o state_id seja referente a um estado inexistente ou caso city_id seja de uma
-            //cidade inexistente
             if (state_findId == null || city_findId == null)
             {
                 return NotFound();
             }
 
-            //Caso a cidade com o city_id enviado tenha um state_id diferente do state_id
             if (city_findCityState == null)
             {
                 return BadRequest();
             }
 
-            //Criado com sucesso!
             if (address.Street != "" && address.Number != 0 &&
                 address.CEP != "")
             {
@@ -267,8 +257,8 @@ namespace DevInSales.Controllers
             }
         }
 
-        // DELETE: api/State/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteState(int id)
         {
             var state = await _context.State.FindAsync(id);

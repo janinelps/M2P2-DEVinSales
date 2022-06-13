@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DevInSales.Controllers
 {
@@ -19,22 +20,11 @@ namespace DevInSales.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Consulta lista de usuários.
-        /// </summary>
-        /// <param name="name">Filtra por nome do usuário.</param>
-        /// <param name="birth_date_min">Filtra por data de nascimento mínima.</param>
-        /// <param name="birth_date_max">Filtra por data de nascimento máxima.</param>
-        /// <returns>Retorna lista de usuários consultados.</returns>
-        /// <response code="200">Retorno da lista de usuários consultados.</response>
-        /// <response code="400">Requisição inválida.</response>
-        /// <response code="404">Usuário não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta.</response>
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet]
         public async Task<ActionResult<IEnumerable<UserResponseDTO>>> Get(
             [FromQuery] string? name, [FromQuery] string? birth_date_min, [FromQuery] string? birth_date_max)
         {
@@ -70,20 +60,12 @@ namespace DevInSales.Controllers
             return Ok(mapper.Map<List<UserResponseDTO>>(usuarios));
         }
 
-        /// <summary>
-        /// Cadastra um novo usuário.
-        /// </summary>
-        /// <param name="requisicao">Representa as informações do novo usuário.</param>
-        /// <returns>Retorna o resultado do User cadastrado.</returns>
-        /// <response code="200">Retorno do User cadastrado.</response>
-        /// <response code="400">Usuário menor de idade ou email já cadastrado.</response>
-        /// <response code="404">Perfil não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante o cadastro.</response>
+        [HttpPost]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
         public async Task<ActionResult<User>> Create([FromBody] UserCreateDTO requisicao)
         {
             try
@@ -121,14 +103,8 @@ namespace DevInSales.Controllers
             return CreatedAtAction("Create", new { id = novoUsuario.Id });
         }
 
-        /// <summary>
-        /// Deleta um usuário conforme o Id Informado.
-        /// </summary>
-        /// <param name="user_id">O Id do usuário para ser deletado.</param>
-        /// <returns>Deleta o usuário conforme o Id informado.</returns>
-        /// <response code="200">Usuário deletado.</response>
-        /// <response code="404">Usuário não encontrado.</response>
         [HttpDelete("{user_id}")]
+        [Authorize(Roles = "Administrador")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser([FromRoute] int user_id)

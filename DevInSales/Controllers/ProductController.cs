@@ -5,6 +5,7 @@ using DevInSales.Context;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,16 +23,6 @@ namespace DevInSales.Controllers
             _sqlContext = sqlContext;
         }
 
-        /// <summary>
-        /// Consulta a lista de Produtos
-        /// </summary>
-        /// <param name="name">Filtra o produto por nome</param>
-        /// <param name="price_min">Delimita um preço mínimo na consulta do produto</param>
-        /// <param name="price_max">Delimita um preço máximo na consulta do produto</param>
-        /// <returns>Retorna lista de produtos consultados.</returns>
-        /// <response code="200">Retorno da lista de produto(s) consultado(s).</response>
-        /// <response code="204">Sem nenhum retorno.</response>
-        /// <response code="400">Erro ao fazer a Request.</response>
         [HttpGet(Name = "GetProduct")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -64,16 +55,8 @@ namespace DevInSales.Controllers
             return (retorno?.Any() ?? false) ? Ok(retorno) : NoContent();
         }
 
-        /// <summary>
-        /// Cadastra um novo Produto
-        /// </summary>
-        /// <param name="requisicao">Representa as informações do novo Produto.</param>
-        /// <returns>Retorna o novo Produto cadastrado.</returns>
-        /// <response code="201">Inserção realizada com sucesso.</response>
-        /// <response code="400">Produto com mesmo nome já cadastrado, ou preço sugerido menor ou igual à 0.</response>
-        /// <response code="404">Produto não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante o cadastro.</response>
         [HttpPost]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -95,17 +78,8 @@ namespace DevInSales.Controllers
             return CreatedAtAction("PostProduct", new { id = newProduct.Id }, newProduct);
         }
 
-        /// <summary>
-        /// Atualiza um Produto
-        /// </summary>
-        /// <param name="id">Representa o Id do Produto.</param>
-        /// <param name="requisicao">Representa as informações que serão atualizadas do Produto.</param>
-        /// <response code="204">Atualização realizada com sucesso.</response>
-        /// <response code="400">Já existe um outro produto com o nome a ser modificado, ou Preço sugerido menor ou igual à 0, ou o Nome e Preço não foram inserios.</response>
-        /// <response code="404">Id do Produto não foi encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a atualização.</response>
-        /// <returns></returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -153,23 +127,14 @@ namespace DevInSales.Controllers
             return _sqlContext.Product.Any(e => e.Id == id);
         }
 
-        /// <summary>
-        ///atualiza o nome e preço do produto
-        /// </summary>
-        /// <param name="productModel"></param>
-        /// <param name="id"></param>
-        /// <returns>atualiza o nome e preço do produto</returns>
-        /// <response code="200">Produto Atualizado</response>
-        /// <response code="204">Sem nenhum retorno.</response>
-        /// <response code="400">Erro ao fazer a Request.</response>
-        /// <response code="404">produto inexistente</response>
-
+        [HttpPatch("{id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPatch("{id}")]
+        
         public async Task<ActionResult<Product>> PatchProduct(int id, ProductPatchDTO productModel)
         {
             var product = await _sqlContext.Product.FindAsync(id);
@@ -215,15 +180,8 @@ namespace DevInSales.Controllers
             return StatusCode(204);
         }
 
-        /// <summary>
-        /// Deleta um produto conforme o Id Informado.
-        /// </summary>
-        /// <param name="product_id">O Id do produto para ser deletado.</param>
-        /// <returns>Deleta o produto conforme o Id informado.</returns>
-        /// <response code="204">Produto deletado.</response>
-        /// <response code="400">Produto com Ordem de Produto Vinculada.</response>
-        /// <response code="404">Produto não encontrado.</response>
         [HttpDelete("{product_id}")]
+        [Authorize(Roles = "Administrador")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
