@@ -1,9 +1,9 @@
 ﻿using DevInSales.Context;
 using DevInSales.DTOs;
 using DevInSales.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace DevInSales.Controllers
 {
@@ -18,14 +18,6 @@ namespace DevInSales.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Busca registros de venda com o Id do usuário
-        /// </summary>
-        /// <param name="user_id">Filtra pelo Id do usuário</param>
-        /// <returns>Busca registros de venda com o Id do usuário</returns>
-        /// <response code="200">Registro encontrado.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
         [HttpGet("user/{user_id}/order")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -49,14 +41,6 @@ namespace DevInSales.Controllers
             }
         }
 
-        /// <summary>
-        /// Busca registros de venda com o Id do vendedor
-        /// </summary>
-        /// <param name="user_id">Filtra pelo Id do vendedor</param>
-        /// <returns>Busca registros de venda com o Id do vendedor</returns>
-        /// <response code="200"></response>
-        /// <response code="404"></response>
-        /// <response code="500"></response>
         [HttpGet("user/{user_id}/buy")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -81,18 +65,9 @@ namespace DevInSales.Controllers
                 throw;
             }
         }
-        /// <summary>
-        /// Atualiza o preço do item de venda
-        /// </summary>
-        /// <param name="order_id">Id do pedido</param>
-        /// <param name="orderProduct_id">Id do order product</param>
-        /// <param name="price">Novo preço</param>
-        /// <returns>Atualiza o preço do item de venda</returns>
-        /// <response code="204">Registro atualizado.</response>
-        /// <response code="400">Requisição incorreta.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
+  
         [HttpPatch("{order_id}/product/{product_id}/price/{price}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -120,18 +95,9 @@ namespace DevInSales.Controllers
             return NoContent();
 
         }
-        /// <summary>
-        /// Atualiza a quantidade do item de venda
-        /// </summary>
-        /// <param name="order_id">Filtra pelo Id do pedido</param>
-        /// <param name="orderProduct_id">Filtra pelo Id do order product</param>
-        /// <param name="amount">Atualiza a quantidade</param>
-        /// <returns>Atualiza a quantidade do item de venda</returns>
-        /// <response code="204">Registro atualizado.</response>
-        /// <response code="400">Requisição incorreta.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
+  
         [HttpPatch("{order_id}/product/{product_id}/amount/{amount}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -160,15 +126,6 @@ namespace DevInSales.Controllers
            
         }
 
-        /// <summary>
-        /// Busca registros de venda com o Id do order product
-        /// </summary>
-        /// <param name="orderProduct_id">Filtra pelo Id do order product</param>
-        /// <returns>Busca registros de venda com o Id do order product</returns>
-        /// <response code="204">Registro atualizado.</response>
-        /// <response code="400">Requisição incorreta.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
         [HttpGet("order/{order_id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -191,16 +148,8 @@ namespace DevInSales.Controllers
             }
         }
 
-        /// <summary>
-        /// Cria uma order
-        /// </summary>
-        /// <param name="city_id">Insere o id da cidade/param>
-        /// <returns>Cria uma order product</returns>
-        /// <response code="204">Registro atualizado.</response>
-        /// <response code="400">Requisição incorreta.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
         [HttpPost("/user/{user_id}/order")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -245,17 +194,8 @@ namespace DevInSales.Controllers
             return Created("criado com sucesso", order.UserId);
         }
 
-
-        /// <summary>
-        /// Cria uma order product
-        /// </summary>
-        /// <param name="order_id">Insere o id da order/param>
-        /// <returns>Cria uma order product</returns>
-        /// <response code="204">Registro atualizado.</response>
-        /// <response code="400">Requisição incorreta.</response>
-        /// <response code="404">Registro não encontrado.</response>
-        /// <response code="500">Ocorreu uma exceção durante a consulta</response>
         [HttpPost("order/{order_id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
