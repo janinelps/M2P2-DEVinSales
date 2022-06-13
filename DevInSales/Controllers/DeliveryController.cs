@@ -1,5 +1,6 @@
 ﻿using DevInSales.Context;
 using DevInSales.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,15 +18,6 @@ namespace DevInSales.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// Buscar registros de delivery com id do endereço e id da order
-        /// </summary>
-        /// <param name="address_id">Filtra pelo id do endereço</param>
-        /// <param name="order_id">Filtra pelo id da order</param>
-        /// <returns>Buscar registros de delivery com id do endereço e id da order</returns>
-        /// <response code="200"></response>
-        /// <response code="204"></response>
-        /// <response code="500"></response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -58,16 +50,8 @@ namespace DevInSales.Controllers
             return Ok(deliverys);
         }
 
-        /// <summary>
-        /// Atualiza data de entrega e status do delivery
-        /// </summary>
-        /// <param name="delivery_id">Filtra pelo id da delivery</param>
-        /// <param name="delivery_date">Insere a data de entrega</param>
-        /// <returns>Atualiza data de entrega e status do delivery</returns>
-        /// <response code="200"></response>
-        /// <response code="404"></response>
-        /// <response code="500"></response>
         [HttpPatch]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -101,17 +85,8 @@ namespace DevInSales.Controllers
             }
         }
 
-        /// <summary>
-        /// Cria uma delivery
-        /// </summary>
-        /// <param name="order_id">Insere a order</param>
-        /// <param name="address_id">Insere o endereco</param>
-        /// <returns>Cria uma delivery</returns>
-        /// <response code="200"></response>
-        /// <response code="404"></response>
-        /// <response code="400"></response>
-        /// <response code="500"></response>
         [HttpPost("order/{order_id}/delivery")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

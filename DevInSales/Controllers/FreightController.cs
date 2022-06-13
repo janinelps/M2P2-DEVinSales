@@ -1,6 +1,7 @@
 ﻿using DevInSales.Context;
 using DevInSales.DTOs;
 using DevInSales.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -113,6 +114,7 @@ namespace DevInSales.Controllers
 
         [HttpPost]
         [Route("state/company")]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<ActionResult<List<StatePriceDTO>>> PostStateCompany(IEnumerable<StatePriceDTO> statePrices)
         {
             if (!ExistStateAndCompany(statePrices))
@@ -152,6 +154,7 @@ namespace DevInSales.Controllers
 
         [HttpPost]
         [Route("city/company")]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<ActionResult<List<CityPriceDTO>>> PostCityCompany(IEnumerable<CityPriceDTO> cityPrices)
         {
             if (!ExistCityAndCompany(cityPrices))
@@ -192,6 +195,7 @@ namespace DevInSales.Controllers
 
         [HttpDelete]
         [Route("city/{cityPriceId}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteCityPrice(int cityPriceId)
         {
             var cityPrice = await _context.CityPrice.FindAsync(cityPriceId);

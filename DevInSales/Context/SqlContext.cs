@@ -93,5 +93,8 @@ public class SqlContext : DbContext
         city_price.Property(x => x.Id).HasColumnName("id").HasColumnType("int").IsRequired();
         city_price.Property(x => x.BasePrice).HasColumnName("base_price").HasColumnType("decimal").IsRequired();
 
+        var user = modelBuilder.Entity<User>();
+        user.HasOne(x=>x.Profile).WithMany().OnDelete(DeleteBehavior.Restrict);
+        
     }
 }

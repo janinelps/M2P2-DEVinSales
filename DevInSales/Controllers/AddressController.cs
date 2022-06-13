@@ -1,21 +1,16 @@
-﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using DevInSales.Context;
+using DevInSales.DTOs;
+using DevInSales.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DevInSales.Context;
-using DevInSales.Models;
-using Microsoft.AspNetCore.JsonPatch;
-using DevInSales.DTOs;
-
 
 namespace DevInSales.Controllers
 {
     [Route("api/address")]
     [ApiController]
+    [Authorize]
     public class AddressController : ControllerBase
     {
         private readonly SqlContext _context;
@@ -25,7 +20,6 @@ namespace DevInSales.Controllers
             _context = context;
         }
 
-        // GET: api/Addresse
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Address>>> GetAddress()
         {
@@ -33,11 +27,7 @@ namespace DevInSales.Controllers
 
         }
 
-        // GET: api/Addresse/5
         [HttpGet("{id}")]
-
-
-
         public async Task<ActionResult<Address>> GetAddress(int id)
         {
             var address = await _context.Address.FindAsync(id);
@@ -53,47 +43,26 @@ namespace DevInSales.Controllers
         [HttpGet("address")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        //public async Task<ActionResult<IEnumerable<AddressDTO>>> GetAddress(string CEP, string Street, CityStateDTO CityStateDTO)
-        //{
-
-        //    List<Address> retorno = new List<Address>();
-        //    if (Street == null)
-        //        return Ok(await _context.Address.ToListAsync());
-
-        //    var temporario = await _context.Address.FirstOrDefaultAsync(x => x.Street.Contains(Street));
-
-        //    if (temporario == null)
-        //        return NoContent();
-        //    retorno.Add(temporario);
-        //    return Ok(retorno);
-        //}
-
         public async Task<ActionResult<AddressDTO>> GetAddress(string CEP, string Street, CityStateDTO CityStateDTO)
         {
-            //return _sqlContext.Clientes.Include(x => x.Endereco).Select(x => (ClienteDTO)x).ToList();
             var street_find = await _context.Address.FindAsync(Street);
             var cep_find = await _context.Address.FindAsync(CEP);
 
             if (street_find == null && cep_find == null)
             {
                 return NoContent();
-               
+
                 List<AddressDTO> addresses = new List<AddressDTO>();
                 addresses.Add(new AddressDTO());
-
-
             }
             else
             {
                 return new AddressDTO();
             }
-
         }
 
-
-        // PUT: api/Addresse/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<IActionResult> PutAddress(int id, Address address)
         {
             if (id != address.Id)
@@ -122,9 +91,8 @@ namespace DevInSales.Controllers
             return NoContent();
         }
 
-        // POST: api/Addresse
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<ActionResult<Address>> PostAddress(Address address)
         {
             _context.Address.Add(address);
@@ -133,8 +101,8 @@ namespace DevInSales.Controllers
             return CreatedAtAction("GetAddress", new { id = address.Id }, address);
         }
 
-        // DELETE: api/Addresse/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -143,13 +111,13 @@ namespace DevInSales.Controllers
         {
             try
             {
-             
-                var address = await _context.Address.FirstOrDefaultAsync(e => e.Id == id); 
+
+                var address = await _context.Address.FirstOrDefaultAsync(e => e.Id == id);
 
 
                 var delivery = await _context.Delivery.
                     Include(x => x.Address)
-                    .FirstOrDefaultAsync(e=> e.Id ==id);
+                    .FirstOrDefaultAsync(e => e.Id == id);
 
 
                 if (address == null)
@@ -176,12 +144,12 @@ namespace DevInSales.Controllers
             return _context.Address.Any(e => e.Id == id);
         }
 
-
+        [HttpPatch("{id}")]
+        [Authorize(Roles = "Administrador,Gerente")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpPatch("{id}")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Address> patchAddress)
         {
             try
@@ -209,11 +177,6 @@ namespace DevInSales.Controllers
                 return StatusCode(500);
             }
         }
-
-
-
-
-
 
     }
 }

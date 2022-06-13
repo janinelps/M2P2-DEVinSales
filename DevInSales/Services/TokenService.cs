@@ -1,29 +1,42 @@
-﻿using DevInSales.Models;
+﻿using DevInSales.Context;
+using DevInSales.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-
 namespace DevInSales.Services
 {
-    public static class TokenService
+    public class TokenService : ITokenService
     {
-        public static string GenerateToken(User user)
+        private readonly SqlContext _context;
+
+        public TokenService(SqlContext context)
         {
-            var claims = new Claim[]
+            _context = context;
+        }
+
+        public string GenerateToken(User user)
+        {
+            var claims = new List<Claim>
              {
                     new Claim(ClaimTypes.Name, user.Name.ToString()),
-        };
+            };
+
+            var nomeProfile = (from userRepo in _context.User
+                               join profile in _context.Profile on userRepo.ProfileId equals profile.Id
+                               where userRepo.Id == user.Id && userRepo.ProfileId == profile.Id
+                               select profile.Name).FirstOrDefault();
+
+            claims.Add(new Claim(ClaimTypes.Role, nomeProfile));
 
             return GenerateToken(claims);
         }
 
 
-        public static string GenerateToken(IEnumerable<Claim> claims)
+        public string GenerateToken(IEnumerable<Claim> claims)
         {
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
 
@@ -32,7 +45,6 @@ namespace DevInSales.Services
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -40,7 +52,7 @@ namespace DevInSales.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public static string GenerateRefreshToken()
+        public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
@@ -48,7 +60,7 @@ namespace DevInSales.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        public static ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -65,18 +77,17 @@ namespace DevInSales.Services
                 throw new SecurityTokenException("Invalid token");
 
             return principal;
-
         }
 
-        private static List<Tuple<string, string>> _refreshsTokens = new List<Tuple<string, string>>();
+        private List<Tuple<string, string>> _refreshsTokens = new List<Tuple<string, string>>();
 
-        public static void SaveRefreshToken(string username, string refreshToken)
+        public void SaveRefreshToken(string username, string refreshToken)
             => _refreshsTokens.Add(new Tuple<string, string>(username, refreshToken));
 
-        public static string GetRefreshToken(string username)
+        public string GetRefreshToken(string username)
             => _refreshsTokens.FirstOrDefault(x => x.Item1 == username).Item2;
 
-        public static void DeleteRefreshToken(string username, string refreshToken)
+        public void DeleteRefreshToken(string username, string refreshToken)
         {
             var item = _refreshsTokens.FirstOrDefault(x => x.Item1 == username && x.Item2 == refreshToken);
             _refreshsTokens.Remove(item);
