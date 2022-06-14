@@ -10,7 +10,7 @@ namespace DevInSales.Controllers
 {
     [Route("api/address")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class AddressController : ControllerBase
     {
         private readonly SqlContext _context;
@@ -92,10 +92,10 @@ namespace DevInSales.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Administrador,Gerente")]
+        [Authorize(Roles = "Administrador,Gerente")]
         public async Task<ActionResult<Address>> PostAddress(Address address)
         {
-            _context.Address.Add(address);
+            await _context.Address.AddAsync(address);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAddress", new { id = address.Id }, address);
