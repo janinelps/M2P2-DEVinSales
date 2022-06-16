@@ -1,4 +1,5 @@
 ﻿using DevInSales.Context;
+using DevInSales.Seeds;
 using DevInSales.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -24,6 +25,8 @@ namespace DevInSales.Test.Integration
             {
                 tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
                 Context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+                Context.AddRangeAsync(StateSeed.Seed);
+                Context.SaveChangesAsync();
             }
         }
 
