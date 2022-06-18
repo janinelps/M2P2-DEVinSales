@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class CityPriceDTO
     {
         [Required(ErrorMessage = "A cidade deve ser informada.")]

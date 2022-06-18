@@ -9,5 +9,11 @@ namespace DevInSales.Test.Fixtures
             new Faker<State>()
             .RuleFor(x => x.Name, f => f.Address.State())
             .RuleFor(x => x.Initials, f => f.Address.StateAbbr());
+
+        public static State GenerateState() =>
+            new Faker<State>()
+            .RuleFor(x => x.Id, f => f.Random.Int())
+            .RuleFor(x => x.Name, f => f.Address.State())
+            .RuleFor(x => x.Initials, f => f.Address.StateAbbr());
     }
 }

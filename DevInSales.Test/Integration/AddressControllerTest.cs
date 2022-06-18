@@ -55,7 +55,7 @@ namespace DevInSales.Test.Integration
 		}
 
 		[Test]
-		public async Task Should_Put_Address_Fail()
+		public async Task Should_Put_Address_Success()
 		{
 			var address = AddressFixture.GenrateAddress();
 			var repo = new ContextInMemory<Address>(Context, Factory);
@@ -68,12 +68,65 @@ namespace DevInSales.Test.Integration
 			result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.NoContent);
 		}
 
+        [Test]
+        public async Task Should_Put_Address_Fail()
+        {
+            var address = AddressFixture.GenrateAddress();
+            var repo = new ContextInMemory<Address>(Context, Factory);
+            repo.AddInMemoryDatabase(address);
+            address.Id +=1;
+			GenerateToken();
+            var requestJson = JsonConvert.SerializeObject(address);
+            var result = await Client.PutAsync($"/api/address/{address.Id-1}", new StringContent(requestJson, Encoding.UTF8, "application/json"));
+            result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.BadRequest);
+        }
+
+        [Test]
+        public async Task Should_Get_Address_All_Success()
+        {
+            GenerateToken();
+            var result = await Client.GetAsync("/api/address");
+            result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.OK);
+
+        }
+
 		[Test]
-		public async Task Should_Get_Address_Fail()
+		public async Task Should_Get_Address_Unauthorized_Fail()
 		{
-			var result = await Client.GetAsync("/api/address");
-			result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.Unauthorized);
+            GenerateToken();
+			var result = await Client.GetAsync("/api/address/9999");
+			result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.NotFound);
 
 		}
+
+        [Test]
+        public async Task Should_Get_Address_Fail()
+        {
+            var result = await Client.GetAsync("/api/address");
+            result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.Unauthorized);
+
+        }
+
+		[Test]
+        public async Task Should_Get_Address_Success()
+		{
+			var address = AddressFixture.GenrateAddress();
+            var repo = new ContextInMemory<Address>(Context, Factory);
+            repo.AddInMemoryDatabase(address);
+
+			GenerateToken();
+			var result = await Client.GetAsync($"/api/address/{address.Id}");
+            result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.OK);
+
+        }
+
+        [Test]
+        public async Task Should_Get_All_Address_Success()
+        {
+            GenerateToken();
+            var result = await Client.GetAsync($"/api/address");
+            result.StatusCode.ShouldBeEqualTo(System.Net.HttpStatusCode.OK);
+
+        }
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using DevInSales.Context;
+using DevInSales.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DevInSales.Test.Integration
@@ -19,6 +20,17 @@ namespace DevInSales.Test.Integration
             {
                 _context = scope.ServiceProvider.GetRequiredService<SqlContext>();
                 _context.Set<T>().AddAsync(obj);
+                _context.SaveChangesAsync();
+
+            }
+        }
+
+        public void UpdateInMemoryDatabase(T obj)
+        {
+            using (var scope = _factory.Server.Services.CreateScope())
+            {
+                _context = scope.ServiceProvider.GetRequiredService<SqlContext>();
+                _context.Set<T>().Update(obj);
                 _context.SaveChangesAsync();
 
             }

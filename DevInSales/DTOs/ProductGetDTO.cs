@@ -1,6 +1,9 @@
-﻿using DevInSales.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using DevInSales.Models;
 
 namespace DevInSales.DTOs;
+
+[ExcludeFromCodeCoverage]
 public class ProductGetDTO
 {
     public string Name { get; set; }

@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class StatePriceDTO
     {
         [Required(ErrorMessage = "O estado deve ser informado.")]

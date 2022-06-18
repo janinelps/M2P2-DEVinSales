@@ -1,7 +1,9 @@
-﻿using DevInSales.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using DevInSales.Models;
 
 namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class OrderCreateDTO
     {
         public int UserId { get; set; }

@@ -1,8 +1,9 @@
 ﻿using DevInSales.Models;
-using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class ProductPostAndPutDTO
     {
         public int Id { get; set; }

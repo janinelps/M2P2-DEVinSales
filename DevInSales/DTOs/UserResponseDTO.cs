@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DevInSales.DTOs
 {
     /// <summary>
     /// DTO que representa as informações de um usuário
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class UserResponseDTO
     {
         /// <summary>
