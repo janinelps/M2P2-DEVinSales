@@ -1,8 +1,10 @@
 ﻿using DevInSales.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class OrderProductCreateDTO
     {
         [Required(ErrorMessage = "O campo Unit_Price do OrderProduct precisa ser informado.")]

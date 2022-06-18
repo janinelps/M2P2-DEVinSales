@@ -1,5 +1,8 @@
-﻿namespace DevInSales.DTOs
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace DevInSales.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class CityStateDTO
     {
         public int City_Id { get; set; }

@@ -65,28 +65,19 @@ namespace DevInSales.Controllers
         [Authorize(Roles = "Administrador,Gerente")]
         public async Task<IActionResult> PutAddress(int id, Address address)
         {
+            if (!AddressExists(id))
+            {
+                return NotFound();
+            }
+
             if (id != address.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(address).State = EntityState.Modified;
+            _context.Update(address);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AddressExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -95,7 +86,7 @@ namespace DevInSales.Controllers
         [Authorize(Roles = "Administrador,Gerente")]
         public async Task<ActionResult<Address>> PostAddress(Address address)
         {
-            _context.Address.Add(address);
+            await _context.Address.AddAsync(address);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAddress", new { id = address.Id }, address);
@@ -109,34 +100,29 @@ namespace DevInSales.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Delete(int id)
         {
-            try
+
+            var address = await _context.Address.FirstOrDefaultAsync(e => e.Id == id);
+
+
+            var delivery = await _context.Delivery.
+                Include(x => x.Address)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+
+            if (address == null)
             {
-
-                var address = await _context.Address.FirstOrDefaultAsync(e => e.Id == id);
-
-
-                var delivery = await _context.Delivery.
-                    Include(x => x.Address)
-                    .FirstOrDefaultAsync(e => e.Id == id);
-
-
-                if (address == null)
-                {
-                    return NotFound();
-                }
-                if (delivery != null)
-                {
-                    return BadRequest();
-                }
-                _context.Address.Remove(address);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch
+            if (delivery != null)
             {
-                return StatusCode(500);
+                return BadRequest();
             }
+
+            _context.Address.Remove(address);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
         private bool AddressExists(int id)
